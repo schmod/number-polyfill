@@ -5,14 +5,16 @@ HTML5 Number polyfill | Jonathan Stipe | https://github.com/jonstipe/number-poly
   i = document.createElement "input"
   i.setAttribute "type", "number"
   if i.type == "text"
-    $.fn.inputNumber = ->
+    $.fn.inputNumber = (model, scope) ->
       $(this).filter('input[type="number"]').each ->
-        numberPolyfill.polyfills.push(new numberPolyfill(this))
+        numberPolyfill.polyfills.push(new numberPolyfill(this, model, scope))
         return
       return $(this)
 
-    numberPolyfill = (elem)->
+    numberPolyfill = (elem, model, scope)->
       @elem = $(elem)
+      @model = model
+      @scope = scope
       halfHeight = (@elem.outerHeight() / 2) + 'px'
       @upBtn = $ '<div/>', { class: 'number-spin-btn number-spin-btn-up', style: "height: #{halfHeight}" }
       @downBtn = $ '<div/>', { class: 'number-spin-btn number-spin-btn-down', style: "height: #{halfHeight}" }
@@ -330,6 +332,9 @@ HTML5 Number polyfill | Jonathan Stipe | https://github.com/jonstipe/number-poly
         newVal = @stepNormalize newVal
 
         @elem.val(newVal).change()
+
+        model = @model
+        @scope.$apply () -> model.$setViewValue(newVal)
       return
 
     numberPolyfill::decrement = () ->
@@ -342,6 +347,9 @@ HTML5 Number polyfill | Jonathan Stipe | https://github.com/jonstipe/number-poly
         newVal = @stepNormalize newVal
 
         @elem.val(newVal).change()
+
+        model = @model
+        @scope.$apply () -> model.$setViewValue(newVal)
       return
 
   else

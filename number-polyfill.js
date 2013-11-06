@@ -10,16 +10,18 @@ HTML5 Number polyfill | Jonathan Stipe | https://github.com/jonstipe/number-poly
     i = document.createElement("input");
     i.setAttribute("type", "number");
     if (i.type === "text") {
-      $.fn.inputNumber = function() {
+      $.fn.inputNumber = function(model, scope) {
         $(this).filter('input[type="number"]').each(function() {
-          numberPolyfill.polyfills.push(new numberPolyfill(this));
+          numberPolyfill.polyfills.push(new numberPolyfill(this, model, scope));
         });
         return $(this);
       };
-      numberPolyfill = function(elem) {
+      numberPolyfill = function(elem, model, scope) {
         var $fieldContainer, MutationObserver, attrObserver, halfHeight,
           _this = this;
         this.elem = $(elem);
+        this.model = model;
+        this.scope = scope;
         halfHeight = (this.elem.outerHeight() / 2) + 'px';
         this.upBtn = $('<div/>', {
           "class": 'number-spin-btn number-spin-btn-up',
@@ -422,7 +424,7 @@ HTML5 Number polyfill | Jonathan Stipe | https://github.com/jonstipe/number-poly
         }
       };
       numberPolyfill.prototype.increment = function() {
-        var newVal, params;
+        var model, newVal, params;
         if (!this.elem.is(":disabled")) {
           params = this.getParams();
           newVal = numberPolyfill.preciseAdd(params['val'], params['step']);
@@ -431,10 +433,14 @@ HTML5 Number polyfill | Jonathan Stipe | https://github.com/jonstipe/number-poly
           }
           newVal = this.stepNormalize(newVal);
           this.elem.val(newVal).change();
+          model = this.model;
+          this.scope.$apply(function() {
+            return model.$setViewValue(newVal);
+          });
         }
       };
       numberPolyfill.prototype.decrement = function() {
-        var newVal, params;
+        var model, newVal, params;
         if (!this.elem.is(":disabled")) {
           params = this.getParams();
           newVal = numberPolyfill.preciseSubtract(params['val'], params['step']);
@@ -443,6 +449,10 @@ HTML5 Number polyfill | Jonathan Stipe | https://github.com/jonstipe/number-poly
           }
           newVal = this.stepNormalize(newVal);
           this.elem.val(newVal).change();
+          model = this.model;
+          this.scope.$apply(function() {
+            return model.$setViewValue(newVal);
+          });
         }
       };
     } else {

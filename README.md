@@ -1,19 +1,28 @@
 # Number polyfill
 
-This is a polyfill for implementing the HTML5 `<input type="number">` element in browsers that do not currently support it.
+This is a polyfill for implementing the HTML5 `<input type="number">` element in browsers that do not currently support it.  
 
-## Usage
-
-Using it is easy — simply include the `number-polyfill.js` file in the HEAD of the HTML page.  
-You can then use `<input type="number">` elements normally.
-
-If the script detects that the browser doesn't support `<input type="number">`, it will search for these elements and attach some Javascript to them to make them function as number-only input fields, and add increment/decrement buttons.
-
-A default CSS file is provided. You may edit this file to style the buttons to make them look the way you want.
+It has been modified to be used inside of an AngularJS directive, based on @kumarharsh's [suggestion](http://stackoverflow.com/questions/18512478/angularjs-set-form-to-dirty-on-model-change-from-outside-angular).
 
 ## Manual usage
 
-The script can also be called manually as a jQuery plugin for elements dynamically generated through script. Simply call the `.inputNumber()` method on any jQuery object containing one or more `<input type="number">` elements.
+From within an Angular directive, call `.inputNumber(ngModel,scope)`
+
+Once `number-polyfill` and its stylesheet have been loaded, it could be used inside of a directive like this:
+```javascript
+angular.module('appModule')
+	.directive('input', function () {
+		return {
+			restrict: 'E',
+			require: '?ngModel',
+			link: function (scope, elem, attrs, ngModel) {
+				if(('type' in attrs) && attrs.type === 'number'){
+					$(elem).inputNumber(ngModel, scope);
+				}
+			}
+		};
+	});
+```
 
 ## Dependencies
 
